@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -18,7 +20,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +42,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
+  public static int quality = 100;
 
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
@@ -70,6 +76,26 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void surfaceCreated(SurfaceHolder previewHolder) {
 		camera = Camera.open();
 
+    // using default preview size may be causing problem on some devices, setting dimensions manually
+    Parameters cameraParams = camera.getParameters();
+
+    cameraParams.setJpegQuality(quality);
+
+    List<Size> sizes = cameraParams.getSupportedPictureSizes();
+
+    Size pictureSize = sizes.get(0);
+
+    cameraParams.setPictureSize(pictureSize.width, pictureSize.height);
+
+    List<String> sceneModes = cameraParams.getSupportedSceneModes();
+
+    if (sceneModes != null && sceneModes.contains(Camera.Parameters.SCENE_MODE_AUTO)) {
+      cameraParams.setSceneMode(Camera.Parameters.SCENE_MODE_AUTO);
+      Log.i(LCAT, "set scene mode: auto");
+    }
+
+    camera.setParameters(cameraParams);
+
 		/*
 		 * Disabling this since it can end up picking a bad preview
 		 * size which can create stretching issues (TIMOB-8151).
@@ -93,7 +119,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 	}
 
-	// make sure to call release() otherwise you will have to force kill the app before 
+	// make sure to call release() otherwise you will have to force kill the app before
 	// the built in camera will open
 	public void surfaceDestroyed(SurfaceHolder previewHolder) {
 		camera.release();
@@ -170,9 +196,26 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		activity.sendBroadcast(mediaScanIntent);
 	}
 
-	static public void takePicture() {
-		camera.takePicture(null, null, jpegCallback);
-	}
+  static public void takePicture() {
+    camera.autoFocus(autoFocusAndTakePictureCallback);
+  }
+
+  static public void focusCamera() {
+    camera.autoFocus(autoFocusCallback);
+  }
+
+  static AutoFocusCallback autoFocusCallback = new AutoFocusCallback() {
+    public void onAutoFocus(boolean success, Camera camera) {
+      Log.i(LCAT, "Auto focus");
+    }
+  };
+
+  static AutoFocusCallback autoFocusAndTakePictureCallback = new AutoFocusCallback() {
+    public void onAutoFocus(boolean success, Camera camera) {
+      Log.i(LCAT, "Auto focus callback (and take picture)");
+      camera.takePicture(null, null, jpegCallback);
+    }
+  };
 
 	static PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {

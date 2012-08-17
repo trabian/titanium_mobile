@@ -160,6 +160,10 @@ public class MediaModule extends KrollModule
 			saveToPhotoGallery = TiConvert.toBoolean(options.get("saveToPhotoGallery"));
 		}
 
+    if (options.containsKey("quality")) {
+      TiCameraActivity.quality = TiConvert.toInt(options.get("quality"));
+    }
+
 		// Use our own custom camera activity when an overlay is provided.
 		if (options.containsKey("overlay")) {
 			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
@@ -280,7 +284,7 @@ public class MediaModule extends KrollModule
 	}
 
 	/**
-	 * Object that is used to wrap required fields for async processing when invoking 
+	 * Object that is used to wrap required fields for async processing when invoking
 	 * success, error , etc callbacks for camera
 	 */
 	private class CallbackWrapper
@@ -470,7 +474,7 @@ public class MediaModule extends KrollModule
 								bucketDisplayName = c.getString(4);
 								dataPath = c.getString(5);
 								dateTaken = c.getString(6);
-								
+
 								if (DBG) {
 									Log.d(LCAT,"Image { title: " + title + " displayName: " + displayName + " mimeType: " + mimeType +
 										" bucketId: " + bucketId + " bucketDisplayName: " + bucketDisplayName +
@@ -484,28 +488,28 @@ public class MediaModule extends KrollModule
 							}
 						}
 					}
-					
+
 					String localImageUrl = dataPath;
-					
+
 					if (!saveToPhotoGallery) {
-						
+
 						// We need to move the image from dataPath to imageUrl
 						try {
 							URL url = new URL(imageUrl);
-							
+
 							File src = new File(dataPath);
 							File dst = new File(url.getPath());
-							
+
 							BufferedInputStream bis = null;
 							BufferedOutputStream bos = null;
-							
+
 							try {
 								bis = new BufferedInputStream(new FileInputStream(src), 8096);
 								bos = new BufferedOutputStream(new FileOutputStream(dst), 8096);
-								
+
 								byte[] buf = new byte[8096];
 								int len = 0;
-								
+
 								while((len = bis.read(buf)) != -1) {
 									bos.write(buf, 0, len);
 								}
@@ -519,7 +523,7 @@ public class MediaModule extends KrollModule
 									bos.close();
 								}
 							}
-							
+
 							// Update Content
 							ContentValues values = new ContentValues();
 							values.put(Images.ImageColumns.BUCKET_ID, imageFile.getPath().toLowerCase().hashCode());
@@ -542,7 +546,7 @@ public class MediaModule extends KrollModule
 							Log.e(LCAT, "Unable to move file: " + e.getMessage(), e);
 						}
 					}
-					
+
 					try {
 						if (successCallback != null) {
 							invokeCallback((TiBaseActivity) activity, successCallback, getKrollObject(), createDictForImage(localImageUrl, "image/jpeg"));
@@ -816,6 +820,17 @@ public class MediaModule extends KrollModule
 			TiCameraActivity.takePicture();
 		} else {
 			Log.e(LCAT, "camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.method
+	public void focusCamera()
+	{
+		// make sure the preview / camera are open before trying to focus the camera
+		if (TiCameraActivity.cameraActivity != null) {
+			TiCameraActivity.focusCamera();
+		} else {
+			Log.e(LCAT, "camera preview is not open, unable to focus the camera");
 		}
 	}
 
