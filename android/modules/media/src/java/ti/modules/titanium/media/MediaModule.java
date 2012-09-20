@@ -52,6 +52,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -163,6 +164,14 @@ public class MediaModule extends KrollModule
     if (options.containsKey("quality")) {
       TiCameraActivity.quality = TiConvert.toInt(options.get("quality"));
     }
+
+    if (options.containsKey("optimalHeight")) {
+    	TiCameraActivity.optimalHeight = TiConvert.toInt(options.get("optimalHeight"));
+    }
+
+    if (options.containsKey("optimalWidth")) {
+  		TiCameraActivity.optimalWidth = TiConvert.toInt(options.get("optimalWidth"));
+  	}
 
 		// Use our own custom camera activity when an overlay is provided.
 		if (options.containsKey("overlay")) {

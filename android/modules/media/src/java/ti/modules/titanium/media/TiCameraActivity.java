@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -43,6 +45,8 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
   public static int quality = 100;
+  public static int optimalWidth = 0;
+  public static int optimalHeight = 0;
 
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback;
@@ -81,11 +85,15 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
     cameraParams.setJpegQuality(quality);
 
-    List<Size> sizes = cameraParams.getSupportedPictureSizes();
+    if (optimalWidth > 0) {
 
-    Size pictureSize = sizes.get(0);
+    	if (optimalHeight <= 0) {
+    		optimalHeight = optimalWidth;
+			}
 
-    cameraParams.setPictureSize(pictureSize.width, pictureSize.height);
+    	useOptimalPictureSize(optimalWidth, optimalHeight, cameraParams);
+
+    }
 
     List<String> sceneModes = cameraParams.getSupportedSceneModes();
 
@@ -117,6 +125,41 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			finish();
 			return;
 		}
+	}
+
+	private void useOptimalPictureSize(int goalWidth, int goalHeight, Parameters cameraParams) {
+
+    List<Size> sizes = cameraParams.getSupportedPictureSizes();
+
+    Size bestMatch = null;
+
+    class SizeComparator implements Comparator<Size> {
+
+	    public int compare(Size s1, Size s2) {
+	      if (s1.width > s2.width) {
+	        return (1);
+	      } else if (s1.width < s2.width) {
+	        return (-1);
+	      }
+	      return 0;
+	    }
+
+    }
+
+    Collections.sort(sizes, new SizeComparator());
+
+    for (Size size : sizes) {
+
+    	bestMatch = size;
+
+    	if ((size.width >= goalWidth) && (size.height >= goalHeight)) {
+    		break;
+    	}
+
+    }
+
+    cameraParams.setPictureSize(bestMatch.width, bestMatch.height);
+
 	}
 
 	// make sure to call release() otherwise you will have to force kill the app before
