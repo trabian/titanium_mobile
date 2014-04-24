@@ -75,19 +75,7 @@ public class TiOverlayItemView extends FrameLayout
 		textLayout.setGravity(Gravity.NO_GRAVITY);
 		textLayout.setId(101);
 
-		title = new TextView(context) {
-
-			@Override
-			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-			{
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-				if (getMeasuredWidth() > 230) {
-					setMeasuredDimension(200, getMeasuredHeight());
-				}
-			}
-
-		};
+		title = new TextView(context);
 		title.setId(200);
 		title.setTextColor(Color.argb(255, 216,216,216));
 		title.setTag("title");
