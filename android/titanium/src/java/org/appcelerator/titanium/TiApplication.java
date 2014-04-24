@@ -109,7 +109,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	
+
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
@@ -123,19 +123,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		activityTransitionListeners.add(a);
 	}
-	
+
 	public static void removeActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.remove(a);
 	}
-	
+
 	public static void updateActivityTransitionState(boolean state)
 	{
 		isActivityTransition.set(state);
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-		
+
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -222,9 +222,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return false;
 	}
 
-	
+
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the current activity.
 	 * @return the current activity
 	 * @module.api
@@ -240,7 +240,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 * @module.api
@@ -280,7 +280,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
@@ -293,7 +293,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 				return activity;
 			}
 		}
-		
+
 		if (currentActivity != null) {
 			activity = currentActivity.get();
 			if (activity != null) {
@@ -388,12 +388,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
-		
+
 		// Register the default cache handler
 		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
 		TiResponseCache.setDefault(responseCache);
 	}
-	
+
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
@@ -843,7 +843,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 					responseCache.setCacheDir(getRemoteCacheDir());
 					TiResponseCache.setDefault(responseCache);
 					Log.i(LCAT, "SD card has been mounted. Enabling cache for http responses.");
-					
+
 				} else {
 					// if the sd card is removed, we don't cache http responses
 					TiResponseCache.setDefault(null);
