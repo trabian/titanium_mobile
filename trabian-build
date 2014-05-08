@@ -1,0 +1,7 @@
+export ANDROID_NDK=~/dev/tools/appcelerator/android-ndk-r9d
+export ANDROID_SDK=~/dev/tools/android
+export PATH=$PATH:$ANDROID_SDK/platform-tools:$ANDROID_SDK/tools
+export GOOGLE_APIS=$ANDROID_SDK/add-ons/addon-google_apis-google-19
+export NUM_CPUS=8
+export NDK_CCACHE=/usr/local/bin/ccache
+scons build_jsca=0
