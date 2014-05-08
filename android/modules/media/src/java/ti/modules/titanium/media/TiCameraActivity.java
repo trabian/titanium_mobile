@@ -66,6 +66,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static boolean saveToPhotoGallery = false;
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static boolean autohide = true;
+	public static long resolution;
 
 	private static class PreviewLayout extends FrameLayout
 	{
@@ -368,14 +369,14 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				minAspectDiff = Math.abs(ratio - targetRatio);
 			}
 		}
-		
+
 		return optimalSize;
 	}
-	
+
 	/**
-	 * Computes the optimal picture size given the preview size. 
-	 * This returns the maximum resolution size.
-	 * 
+	 * Computes the optimal picture size given the preview size.
+	 * This returns the optimal resolution size.
+	 *
 	 * @param sizes
 	 *            a list of picture sizes the camera supports
 	 * @return the optimal size of the picture
@@ -387,13 +388,29 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		}
 		Size optimalSize = null;
 
-		long resolution = 0;
+		long currentResolution = 0;
+		long currentResolutionDiff = Long.MAX_VALUE;
 
 		for (Size size : sizes) {
-			if (size.width * size.height > resolution) {
-				optimalSize = size;
-				resolution = size.width * size.height;
+
+			if (resolution > 0) {
+
+				long resolutionDiff = Math.abs((size.width * size.height) - resolution);
+
+				if (resolutionDiff < currentResolutionDiff) {
+					currentResolutionDiff = resolutionDiff;
+					optimalSize = size;
+				}
+
+			} else {
+
+				if (size.width * size.height > currentResolution) {
+					optimalSize = size;
+					currentResolution = size.width * size.height;
+				}
+
 			}
+
 		}
 
 		return optimalSize;

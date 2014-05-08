@@ -151,6 +151,7 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 		boolean autohide = true;
 		boolean saveToPhotoGallery = false;
+		long resolution = 0;
 
 		if (options.containsKey("success")) {
 			successCallback = (KrollFunction) options.get("success");
@@ -165,6 +166,11 @@ public class MediaModule extends KrollModule
 		Object autohideOption = options.get("autohide");
 		if (autohideOption != null) {
 			autohide = TiConvert.toBoolean(autohideOption);
+		}
+
+		// Using long may be overkill here but better safe than sorry.
+		if (options.containsKey("resolution")) {
+			resolution = Long.parseLong(TiConvert.toString(options.get("resolution")));
 		}
 
 		Object saveToPhotoGalleryOption = options.get("saveToPhotoGallery");
@@ -192,6 +198,7 @@ public class MediaModule extends KrollModule
 				TiCameraActivity.whichCamera = TiConvert.toInt(whichCamera);
 			}
 			TiCameraActivity.autohide = autohide;
+			TiCameraActivity.resolution = resolution;
 
 			Intent intent = new Intent(activity, TiCameraActivity.class);
 			activity.startActivity(intent);
